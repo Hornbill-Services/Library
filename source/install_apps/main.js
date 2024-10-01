@@ -1,12 +1,16 @@
 (async () => {
     const version = '1.0';
+
+    const fs = require('node:fs');
+
     console.log('\n=== Hornbill Services Automation ===');
     console.log(`======== App Installer v${version} ========`);
 
     const hblib = require('../common/hb-module.js');
 
-    let instance_id = "";
-    let api_key = "";
+    let instance_id = '';
+    let api_key = '';
+    let app_json_path = '';
     let app_ids = [];
 
     const install_app = async (app_id) => {
@@ -42,25 +46,31 @@
             } else if (process.argv[x] === "-apikey") {
                 x++;
                 if (x < process.argv.length) api_key = process.argv[x];
-            } else if (process.argv[x] === "-app") {
+            } else if (process.argv[x] === "-appjson") {
                 x++;
-                if (x < process.argv.length) app_ids = process.argv[x].split(",");
+                if (x < process.argv.length) app_json_path = process.argv[x];
             }
         }
 
         // Validate args
-        if (instance_id === "") {
-            console.log("-instance arg is mandatory");
+        if (instance_id === '') {
+            console.log('-instance arg is mandatory');
             process.exit(1);
         }
-        if (api_key === "") {
-            console.log("-apikey arg is mandatory");
+        if (api_key === '') {
+            console.log('-apikey arg is mandatory');
             process.exit(1);
         }
-        if (app_ids.length === 0) {
-            console.log("-appid arg is mandatory");
+        if (app_json_path === '') {
+            console.log('-appjson arg is mandatory');
             process.exit(1);
         }
+
+        if (!fs.existsSync(app_json_path)) {
+            console.log('JSON file that contains the list of apps does not exist.');
+            process.exit(1);
+        }
+        app_ids = JSON.parse(fs.readFileSync(app_json_path)).apps;
     };
 
     // Process CLI arguments
