@@ -58,7 +58,7 @@
         return response;
     };
 
-    exports.get_job_status = async (job_id) => {
+    exports.get_job_status = async (endpoint, api_key, job_id) => {
         console.log(`Checking status of background job [${job_id}]`);
         const response = {
             success: false,
@@ -73,7 +73,7 @@
                 jobId: job_id
             }
         }
-        const api_response = await this.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload);
+        const api_response = await this.invoke(`${endpoint}${payload['@service']}`, api_key, payload);
         if (!api_response.success) {
             response.errors = api_response.errors;
             response.finished = true;

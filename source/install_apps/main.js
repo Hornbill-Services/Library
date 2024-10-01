@@ -98,7 +98,7 @@
         } else {
             let job_ended = false;
             while (!job_ended) {
-                const job_status = await hblib.get_job_status(app_job.job_id);
+                const job_status = await hblib.get_job_status(api_endpoint, api_key, app_job.job_id);
                 job_ended = job_status.finished;
                 if (!job_status.success) {
                     console.error(`App install job failed: ${job_status.errors.join('; ')}`);
