@@ -73,7 +73,7 @@
                 jobId: job_id
             }
         }
-        const api_response = await hblib.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload);
+        const api_response = await this.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload);
         if (!api_response.success) {
             response.errors = api_response.errors;
             response.finished = true;
