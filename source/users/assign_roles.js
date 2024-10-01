@@ -3,28 +3,28 @@
 
     const fs = require('node:fs');
 
-    console.log('\n=== Hornbill Services Automation ===');
-    console.log(`======== App Installer v${version} ========`);
+    console.log('\n==== Hornbill Services Automation ====');
+    console.log(`======== Role Assignment v${version} ========`);
 
     const hblib = require('../common/hb-module.js');
 
     let instance_id = '';
     let api_key = '';
     let json_path = '';
-    let app_ids = [];
+    let users = [];
 
-    const install_app = async (app_id) => {
-        console.log(`\nInstalling app: ${app_id}`);
+    const add_roles = async (user) => {
+        console.log(`\nAdding roles to user: ${user.id}`);
         const response = {
             success: false,
-            errors: [],
-            job_id: 0
+            errors: []
         };
         const payload = {
             '@service': 'admin',
-            '@method': 'appInstall',
+            '@method': 'userAddRole',
             params: {
-                applicationId: app_id
+                userId: user.id,
+                role: user.roles
             }
         }
         const api_response = await hblib.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload);
@@ -32,7 +32,6 @@
             response.errors = api_response.errors;
         } else {
             response.success = true;
-            response.job_id = Number.parseInt(api_response.data.params.jobId, 10);
         }
         return response;
     };
@@ -70,14 +69,13 @@
             console.log('JSON file that contains the list of apps does not exist.');
             process.exit(1);
         }
-        app_ids = JSON.parse(fs.readFileSync(json_path)).apps;
+        users = JSON.parse(fs.readFileSync(json_path)).users;
     };
 
     // Process CLI arguments
     process_args();
 
     console.log(`\n- Instance ID: ${instance_id}`);
-    console.log(`- Apps: ${app_ids.join(', ')}`);
 
     // Get API endpoint for instance
     const zoneinfo = await hblib.get_endpoints(instance_id);
@@ -88,34 +86,22 @@
     const api_endpoint = zoneinfo.api_endpoint;
     console.log(`- Instance API Endpoint: ${api_endpoint}`);
 
-    let apps_installed = 0;
-    // Install apps
-    for (const app_id of app_ids) {
-        const app_job = await install_app(app_id);
+    let users_set = 0;
+    // Add roles to users
+    for (const user of users) {
+        const app_job = await add_roles(user);
         if (!app_job.success) {
-            console.error(`Failed to install app [${app_id}]:`);
+            console.error(`Failed to add roles to user [${user.id}]:`);
             console.error(app_job.errors.join('\n'));
         } else {
-            let job_ended = false;
-            while (!job_ended) {
-                const job_status = await hblib.get_job_status(api_endpoint, api_key, app_job.job_id);
-                job_ended = job_status.finished;
-                if (!job_status.success) {
-                    console.error(`App install job failed: ${job_status.errors.join('; ')}`);
-                }
-                if (job_ended && job_status.success) {
-                    console.log(`App installed successfully: ${app_id}`);
-                    apps_installed++;
-                }
-                await new Promise(resolve => setTimeout(resolve, 3000));
-            }
+            users_set++;
         }
     }
 
-    if (apps_installed !== app_ids.length) {
-        console.error(`\nFailed to install ${app_ids.length - apps_installed} of ${app_ids.length} apps.\n`);
+    if (users_set !== users.length) {
+        console.error(`\nFailed to add ${users.length - users_set} of ${users.length} users roles.\n`);
         process.exit(1);
     }
-    console.log('\nAll apps installed successfully\n');
+    console.log('\nUser roles assigned successfully\n');
 
 })();
