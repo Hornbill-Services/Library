@@ -182,7 +182,7 @@
         try {
             const workflow_definition = JSON.parse(fs.readFileSync(path.join(workflows_path, workflow), { encoding: 'utf8' }));
             const workflow_exists = await does_workflow_exist(workflow_id);
-            let workflow_push = await push_workflow(workflow_exists, workflow_definition);
+            const workflow_push = await push_workflow(workflow_exists, workflow_definition);
             if (!workflow_push.success) {
                 console.error(`Failed to push workflow [${workflow_id}] to Hornbill instance: ${workflow_push.errors.join(';')}`);
             } else {
