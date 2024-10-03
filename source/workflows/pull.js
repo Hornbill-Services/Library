@@ -199,7 +199,7 @@
             console.log(`Creating workflow definition in repo: ${app}_${workflow_definition.name}.json`);
         }
         try {
-            fs.writeFileSync(workflow_path, JSON.stringify(workflow_definition));
+            fs.writeFileSync(workflow_path, JSON.stringify(workflow_definition, null, 2));
             workflow_success++;
         } catch (e) {
             console.error(`Error creating workflow at ${workflow_path}`);
