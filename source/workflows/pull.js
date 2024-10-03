@@ -192,11 +192,12 @@
     let workflow_error = 0;
     console.log(`\nWorkflow definitions found & returned: ${workflow_definitions.length}. Processing...`)
     for (const workflow_definition of workflow_definitions) {
-        const workflow_path = path.join(workflows_path, `${app}_${workflow_definition.name}.json`);
+        const workflow_filename = `${app}_${workflow_type}_${workflow_definition.name}.json`;
+        const workflow_path = path.join(workflows_path, workflow_filename);
         if (fs.existsSync(workflow_path)) {
-            console.log(`Overwriting workflow definition in repo: ${app}_${workflow_definition.name}.json`);
+            console.log(`Overwriting workflow definition in repo: ${workflow_filename}`);
         } else {
-            console.log(`Creating workflow definition in repo: ${app}_${workflow_definition.name}.json`);
+            console.log(`Creating workflow definition in repo: ${workflow_filename}`);
         }
         try {
             fs.writeFileSync(workflow_path, JSON.stringify(workflow_definition, null, 2));
