@@ -126,8 +126,7 @@
   exports.wildcard_search = (wildcard, str) => {
     const w = wildcard.replace(/[.+^${}()|[\]\\]/g, "\\$&"); // regexp escape
     const re = new RegExp(
-      `^${w.replace(/\*/g, ".*").replace(/%/g, ".*").replace(/\?/g, ".")}$`
-    );
+      `^${w.replace(/\*/g, ".*").replace(/%/g, ".*").replace(/\?/g, ".")}$`,'i');
     return re.test(str);
   };
 })();
