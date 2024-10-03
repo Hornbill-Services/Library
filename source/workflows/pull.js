@@ -36,7 +36,7 @@
                 },
                 type: workflow_type
             }
-        }
+        };
         if (workflow_state !== 'all') payload.params.activeState = workflow_state
         
         const api_response = await hblib.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload);
@@ -64,13 +64,22 @@
                 name: workflow,
                 version: 0
             }
-        }
-        const api_response = await hblib.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload);
+        };
+        const headers = { Accept: 'text/xmlmc'};
+        const api_response = await hblib.invoke(`${api_endpoint}${payload['@service']}`, api_key, payload, headers, true);
         if (!api_response.success) {
             response.errors = api_response.errors;
         } else {
             response.success = true;
-            response.workflow = api_response.data.params;
+            const definitionRegex = /<definition>([\s\S]*?)<\/definition>/;
+            const match = api_response.xml_data.match(definitionRegex);
+            response.workflow = {
+                application: app,
+                name: workflow,
+                title: api_response.data.methodCallResult.params.title._text,
+                description: api_response.data.methodCallResult.params.description ? api_response.data.methodCallResult.params.description._text : '',
+                definition: match[0]
+            }
         }
         return response;
     };

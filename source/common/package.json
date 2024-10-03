@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "axios": "latest"
+    "axios": "latest",
+    "xml-js": "latest"
   }
 }
